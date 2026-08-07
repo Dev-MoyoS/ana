@@ -1,24 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## The World of Analufuno Mudau
+
+An immersive cinematic interactive author website built with **Next.js 15 App Router**, **TypeScript**, **TailwindCSS v4**, **Framer Motion**, **GSAP**, **Lenis smooth scrolling**, **React Three Fiber**, and **Sanity CMS**.
 
 ## Getting Started
 
-First, run the development server:
+### 1) Install and run the website
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2) Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` to `.env.local` and fill in:
+
+- **Sanity**: `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`
+
+### 3) Run Sanity Studio (CMS)
+
+```bash
+npm run sanity:dev
+```
+
+Studio runs at `http://localhost:3333`.
+
+## Project structure (high-level)
+
+- `src/app/`: App Router routes (`/`, `/world/*`, `/storyteller`, `/inside-the-world`, `/library`, `/admin`)
+- `src/components/`: cinematic UI + world experiences
+- `src/lib/sanity/`: Sanity client + queries
+- `sanity/`: Sanity schema types
+- `sanity.config.ts`: Studio config
 
 ## Learn More
 
