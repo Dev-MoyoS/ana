@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import {
   Cinzel,
@@ -41,6 +41,13 @@ export const metadata: Metadata = {
   description: "Stories that inspire imagination and captivate readers.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#f7f2ee",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -58,7 +65,7 @@ export default function RootLayout({
         "h-full antialiased",
       ].join(" ")}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="site-body min-h-full flex flex-col">
         <div className="atmosphere" />
         <Providers>
           <IntroGate>{children}</IntroGate>

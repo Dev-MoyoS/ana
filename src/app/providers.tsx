@@ -2,8 +2,16 @@
 
 import { ReactNode, useEffect } from "react";
 import Lenis from "lenis";
+import { AuthorAuthProvider } from "@/lib/firebase/AuthorAuthContext";
+import { getFirebaseAnalytics } from "@/lib/firebase/analytics";
 
 export function Providers({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    getFirebaseAnalytics().catch(() => {
+      // Analytics is optional; ignore unsupported environments (SSR, blockers, etc.)
+    });
+  }, []);
+
   useEffect(() => {
     const prefersReduced =
       typeof window !== "undefined" &&
@@ -34,6 +42,6 @@ export function Providers({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  return <>{children}</>;
+  return <AuthorAuthProvider>{children}</AuthorAuthProvider>;
 }
 

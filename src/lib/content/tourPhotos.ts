@@ -1,0 +1,9 @@
+export const TOUR_PHOTO_PATHS = [
+  "/IMG_20260811_161826.jpg",
+  "/IMG-20260818-WA0012.jpg",
+  "/IMG-20260818-WA0018.jpg",
+  "/IMG-20260818-WA0024.jpg",
+  "/IMG-20260818-WA0027.jpg",
+  "/IMG-20260818-WA0028.jpg",
+  "/IMG-20260818-WA0029.jpg",
+] as const;

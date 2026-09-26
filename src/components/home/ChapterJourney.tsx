@@ -8,6 +8,7 @@ import { ParticleField } from "../shared/ParticleField";
 import { HeroDriftingFeather } from "./HeroDriftingFeather";
 import { BookCoverShowcase } from "../shared/BookCoverShowcase";
 import { CinematicFrame } from "../shared/CinematicFrame";
+import { MobileSiteNav } from "../shared/MobileSiteNav";
 
 export function ChapterJourney() {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -85,11 +86,11 @@ export function ChapterJourney() {
         <ParticleField className="absolute inset-0 h-full w-full" />
       </div>
 
-      <header className="sticky top-0 z-20 border-b border-[rgba(46,29,24,0.08)] bg-[rgba(247,242,238,0.78)] backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <header className="site-header sticky top-0 z-30">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <Link
             href="/"
-            className="flex items-center gap-3 font-[var(--font-cinematic)] text-xs tracking-[0.32em] text-[color:var(--foreground)]/80 transition hover:text-[color:var(--foreground)]"
+            className="flex min-h-11 min-w-0 items-center gap-2 font-[var(--font-cinematic)] text-[10px] tracking-[0.24em] text-[color:var(--foreground)]/80 transition hover:text-[color:var(--foreground)] sm:gap-3 sm:text-xs sm:tracking-[0.32em]"
           >
             <Image
               src="/Logo.png"
@@ -97,27 +98,12 @@ export function ChapterJourney() {
               width={260}
               height={80}
               priority
-              className="h-10 w-auto opacity-95 sm:h-12"
+              className="h-9 w-auto opacity-95 sm:h-12"
             />
-            <span className="hidden sm:inline">THE WORLD OF ANALUFUNO MUDAU</span>
+            <span className="hidden min-[420px]:inline md:hidden">ANALUFUNO MUDAU</span>
+            <span className="hidden md:inline">THE WORLD OF ANALUFUNO MUDAU</span>
           </Link>
-          <nav className="hidden items-center gap-6 text-sm text-[color:var(--foreground)]/70 sm:flex">
-            <Link href="/world/children" className="transition hover:text-[color:var(--foreground)]">
-              Children’s Stories
-            </Link>
-            <Link href="/world/novel" className="transition hover:text-[color:var(--foreground)]">
-              Upcoming Novel
-            </Link>
-            <Link href="/storyteller" className="transition hover:text-[color:var(--foreground)]">
-              The Storyteller
-            </Link>
-            <Link href="/inside-the-world" className="transition hover:text-[color:var(--foreground)]">
-              Inside the World
-            </Link>
-            <Link href="/library" className="transition hover:text-[color:var(--foreground)]">
-              Library
-            </Link>
-          </nav>
+          <MobileSiteNav />
         </div>
       </header>
 

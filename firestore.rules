@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthor() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email in [
+          // Add the same email(s) as NEXT_PUBLIC_AUTHOR_EMAILS in .env.local
+          "author@example.com",
+          "moyosbi2007@gmail.com"
+        ];
+    }
+
+    match /journal_posts/{docId} {
+      allow read: if resource.data.published == true || isAuthor();
+      allow create, update, delete: if isAuthor();
+    }
+
+    match /books/{docId} {
+      allow read: if resource.data.status != "draft" || isAuthor();
+      allow create, update, delete: if isAuthor();
+    }
+  }
+}
