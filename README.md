@@ -34,15 +34,17 @@ firebase deploy --only firestore:rules
 6. Sign in at **`/author/portal`** (private — not linked in public navigation).
 7. Manage journal entries and book formats in **`/author/studio`**.
 
-### Production (Vercel — mudaubooks.co.za)
+### Production (Netlify — mudaubooks.co.za)
+
+This repo includes `netlify.toml` with the official **Next.js Netlify plugin** (`npm run build`).
 
 If `/author/portal` shows “Firebase is not configured”, the live site was built **without** Firebase env vars.
 
-1. Vercel → your project → **Settings → Environment Variables**.
-2. Copy every `NEXT_PUBLIC_FIREBASE_*`, `NEXT_PUBLIC_AUTHOR_*`, and `NEXT_PUBLIC_CONTACT_EMAIL` value from your local `.env.local` (see `.env.example` for names).
-3. Apply to **Production** (and Preview if you use it).
-4. **Redeploy** the latest deployment (Deployments → … → Redeploy). Changing env vars alone is not enough for `NEXT_PUBLIC_*` — you need a new build.
-5. Run `firebase deploy --only firestore:rules,storage` so Ana’s account can write journal media and posts.
+1. Netlify → your site → **Site configuration → Environment variables** (or **Project configuration → Environment variables** on team plans).
+2. Add every key from `.env.example`, using the same values as your local `.env.local` (all `NEXT_PUBLIC_FIREBASE_*`, `NEXT_PUBLIC_AUTHOR_*`, `NEXT_PUBLIC_CONTACT_EMAIL`, etc.).
+3. Set scopes to **Production** (and **Deploy previews** if you use branch builds).
+4. **Deploys → Trigger deploy → Deploy site** (or push a commit). Updating env vars alone is not enough for `NEXT_PUBLIC_*` — you need a **new build**.
+5. Run `firebase deploy --only firestore:rules,storage` so author accounts can write journal media and posts (enable Storage in Firebase Console first if needed).
 
 Public pages:
 
@@ -74,8 +76,10 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deploy on Netlify
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Connect the GitHub repo in [Netlify](https://app.netlify.com/).
+2. Build settings are read from `netlify.toml` (command: `npm run build`, Next.js plugin).
+3. Add environment variables (see **Production** section above), then deploy.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Docs: [Netlify Next.js runtime](https://docs.netlify.com/frameworks/next-js/overview/).
