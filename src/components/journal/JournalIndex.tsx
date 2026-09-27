@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { listJournalPosts } from "@/lib/firebase/journal";
 import type { JournalCategory, JournalPost } from "@/lib/types/content";
+import { SiteContactPanel } from "../shared/SiteContactFooter";
 import { WorldShell } from "../shared/WorldShell";
 import { CinematicFrame } from "../shared/CinematicFrame";
 import { JournalPostCard } from "./JournalPostCard";
@@ -131,6 +132,10 @@ export function JournalIndex() {
           No entries in this category yet. New posts will appear here as Ana continues the tour.
         </div>
       ) : null}
+
+      <div className="mt-10">
+        <SiteContactPanel title="Invite Ana to your school" />
+      </div>
     </WorldShell>
   );
 }

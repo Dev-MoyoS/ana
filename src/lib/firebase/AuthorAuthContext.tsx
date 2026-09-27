@@ -15,8 +15,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { AuthorInactivityMonitor } from "@/components/author/AuthorInactivityMonitor";
 import { getFirebaseAuth } from "./client";
-import { isAuthorEmail, isFirebaseConfigured } from "./config";
+import { isAuthorAccount, isFirebaseConfigured } from "./config";
 
 type AuthorAuthContextValue = {
   user: User | null;
@@ -45,7 +46,7 @@ export function AuthorAuthProvider({ children }: { children: ReactNode }) {
       auth,
       async (nextUser) => {
         try {
-          if (nextUser && !isAuthorEmail(nextUser.email)) {
+          if (nextUser && !isAuthorAccount(nextUser)) {
             await signOut(auth);
             setUser(null);
           } else {
@@ -72,7 +73,7 @@ export function AuthorAuthProvider({ children }: { children: ReactNode }) {
     const auth = getFirebaseAuth();
     if (!auth) throw new Error("Firebase is not configured.");
     const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
-    if (!isAuthorEmail(cred.user.email)) {
+    if (!isAuthorAccount(cred.user)) {
       await signOut(auth);
       throw new Error("This account is not authorized for author access.");
     }
@@ -84,19 +85,26 @@ export function AuthorAuthProvider({ children }: { children: ReactNode }) {
     await signOut(auth);
   }, []);
 
+  const isAuthor = Boolean(user && isAuthorAccount(user));
+
   const value = useMemo(
     () => ({
       user,
-      isAuthor: Boolean(user && isAuthorEmail(user.email)),
+      isAuthor,
       loading,
       firebaseReady,
       signIn,
       signOutAuthor,
     }),
-    [user, loading, firebaseReady, signIn, signOutAuthor],
+    [user, isAuthor, loading, firebaseReady, signIn, signOutAuthor],
   );
 
-  return <AuthorAuthContext.Provider value={value}>{children}</AuthorAuthContext.Provider>;
+  return (
+    <AuthorAuthContext.Provider value={value}>
+      <AuthorInactivityMonitor enabled={isAuthor} onIdleSignOut={signOutAuthor} />
+      {children}
+    </AuthorAuthContext.Provider>
+  );
 }
 
 export function useAuthorAuth() {

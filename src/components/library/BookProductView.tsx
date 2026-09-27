@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { BookProduct } from "@/lib/types/content";
 import { BookCoverShowcase } from "../shared/BookCoverShowcase";
+import { ContactEmailLink } from "../shared/ContactEmailLink";
 import { WorldShell } from "../shared/WorldShell";
 
 function formatPrice(zar?: number, usd?: number) {
@@ -96,6 +97,11 @@ export function BookProductView({ book }: { book: BookProduct }) {
                 Read Ana&apos;s journal
               </Link>
             </div>
+
+            <p className="mt-6 text-sm text-[color:var(--muted)]">
+              Bulk orders for schools or events? Email{" "}
+              <ContactEmailLink subject={`Book order enquiry — ${book.title}`} />.
+            </p>
           </div>
         </div>
       </div>

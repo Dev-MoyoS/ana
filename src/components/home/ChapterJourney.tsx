@@ -8,7 +8,9 @@ import { ParticleField } from "../shared/ParticleField";
 import { HeroDriftingFeather } from "./HeroDriftingFeather";
 import { BookCoverShowcase } from "../shared/BookCoverShowcase";
 import { CinematicFrame } from "../shared/CinematicFrame";
+import { ContactEmailLink } from "../shared/ContactEmailLink";
 import { MobileSiteNav } from "../shared/MobileSiteNav";
+import { SiteContactFooter } from "../shared/SiteContactFooter";
 
 export function ChapterJourney() {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -470,42 +472,15 @@ export function ChapterJourney() {
                 Subscribe
               </button>
               <p className="text-xs text-[rgba(46,29,24,0.55)] sm:col-span-2">
-                Calm, elegant signups—provider integration comes next.
+                Calm, elegant signups—provider integration comes next. Prefer email?{" "}
+                <ContactEmailLink subject="Join Ana's reader community" className="text-[color:var(--foreground)]/70" />
               </p>
             </form>
           </div>
         </div>
       </section>
 
-      <footer className="relative z-10 border-t border-[rgba(46,29,24,0.10)] bg-[rgba(247,242,238,0.72)]">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-10 text-sm text-[color:var(--muted)] sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="font-[var(--font-cinematic)] text-xs tracking-[0.34em] text-[color:var(--foreground)]/70">
-              Analufuno Mudau
-            </div>
-            <div className="mt-1">© {new Date().getFullYear()} The World of Analufuno Mudau</div>
-            <div className="mt-2 text-xs text-[color:var(--muted)]/80">
-              Built by{" "}
-              <a
-                href="https://nellytechnologies.co.za/"
-                target="_blank"
-                rel="noreferrer"
-                className="font-medium text-[color:var(--foreground)]/75 underline decoration-[rgba(200,164,106,0.55)] underline-offset-4 transition hover:text-[color:var(--foreground)]"
-              >
-                Nelly Technologies (Pty) Ltd
-              </a>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-4">
-            <Link className="transition hover:text-[color:var(--foreground)]" href="/admin">
-              Admin
-            </Link>
-            <Link className="transition hover:text-[color:var(--foreground)]" href="/library">
-              Retailers
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <SiteContactFooter showAdminLinks />
     </motion.main>
   );
 }

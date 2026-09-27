@@ -70,6 +70,8 @@ body {
 }
 
 .site-header {
+  position: relative;
+  z-index: 35;
   border-bottom: 1px solid rgba(46, 29, 24, 0.1);
   background: rgba(247, 242, 238, 0.82);
   backdrop-filter: blur(10px);
@@ -724,6 +726,27 @@ html.intro-lock body {
 
 .studio-input:focus {
   box-shadow: 0 0 0 2px rgba(217, 168, 156, 0.35);
+}
+
+.studio-chip {
+  min-height: 2.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(46, 29, 24, 0.12);
+  background: rgba(255, 255, 255, 0.75);
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  transition: background 0.2s ease;
+}
+
+.studio-chip:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.studio-chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .book-showcase__spread-sheen {

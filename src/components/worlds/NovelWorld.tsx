@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
+import { ContactEmailLink } from "../shared/ContactEmailLink";
+import { SiteContactPanel } from "../shared/SiteContactFooter";
 import { WorldShell } from "../shared/WorldShell";
 import { CinematicFrame } from "../shared/CinematicFrame";
 
@@ -108,7 +110,10 @@ export function NovelWorld() {
                   <button className="btn-aurora h-11 px-6 text-sm" type="submit">
                     Join the Waitlist
                   </button>
-                  <p className="text-xs text-[rgba(46,29,24,0.55)]">Provider integration comes next.</p>
+                  <p className="text-xs text-[rgba(46,29,24,0.55)]">
+                    Provider integration comes next. Until then, email Ana to join the waitlist:{" "}
+                    <ContactEmailLink subject="Novel waitlist" className="text-[color:var(--foreground)]/70" />
+                  </p>
                 </form>
               </div>
 
@@ -145,6 +150,10 @@ export function NovelWorld() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <SiteContactPanel title="Questions about the novel" />
       </div>
     </WorldShell>
   );

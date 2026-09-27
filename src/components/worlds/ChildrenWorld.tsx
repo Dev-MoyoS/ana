@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { BookCoverShowcase } from "../shared/BookCoverShowcase";
+import { mailtoAuthor } from "@/lib/site/contact";
+import { SiteContactPanel } from "../shared/SiteContactFooter";
 import { WorldShell } from "../shared/WorldShell";
 import { CinematicFrame } from "../shared/CinematicFrame";
 
@@ -224,15 +226,17 @@ export function ChildrenWorld() {
             <button className="btn-aurora px-6 py-3 text-sm" type="button">
               Download Teacher Pack
             </button>
-            <button
-              className="rounded-full border border-[rgba(46,29,24,0.14)] bg-white/70 px-6 py-3 text-sm text-[color:var(--foreground)]/80 backdrop-blur-md transition hover:bg-white/90 hover:text-[color:var(--foreground)]"
-              type="button"
+            <a
+              className="inline-flex items-center justify-center rounded-full border border-[rgba(46,29,24,0.14)] bg-white/70 px-6 py-3 text-sm text-[color:var(--foreground)]/80 backdrop-blur-md transition hover:bg-white/90 hover:text-[color:var(--foreground)]"
+              href={mailtoAuthor({ subject: "School visit enquiry — Ana's Crooked Teeth" })}
             >
               Book a School Visit
-            </button>
+            </a>
           </div>
 
-          <p className="mt-3 text-xs text-[rgba(46,29,24,0.55)]">Next: connect downloads + contact workflow.</p>
+          <div className="mt-8">
+            <SiteContactPanel title="School visits & teacher packs" />
+          </div>
         </div>
       </div>
     </WorldShell>

@@ -16,6 +16,7 @@ import type { BookProduct, BookFormatOffer } from "@/lib/types/content";
 import { getFirebaseDb } from "./client";
 
 const COLLECTION = "books";
+const PUBLIC_STATUSES = ["published", "coming-soon"] as const;
 
 export type BookListOptions = {
   includeDrafts?: boolean;
@@ -62,18 +63,39 @@ function seedBooks(options?: BookListOptions) {
   return SEED_BOOKS.filter((b) => options?.includeDrafts || b.status !== "draft");
 }
 
-async function fetchFirestoreBooks(): Promise<BookProduct[]> {
+function isPublicBook(book: BookProduct) {
+  return book.status === "published" || book.status === "coming-soon";
+}
+
+async function fetchFirestoreBooks(options?: BookListOptions): Promise<BookProduct[]> {
   const db = getFirebaseDb();
   if (!db) return [];
 
-  try {
-    const ordered = query(collection(db, COLLECTION), orderBy("updatedAt", "desc"));
-    const snap = await getDocs(ordered);
-    return snap.docs.map((d) => fromDoc(d.id, d.data()));
-  } catch {
-    const snap = await getDocs(collection(db, COLLECTION));
-    return sortBooks(snap.docs.map((d) => fromDoc(d.id, d.data())));
+  const base = collection(db, COLLECTION);
+
+  const attempts = options?.includeDrafts
+    ? [query(base, orderBy("updatedAt", "desc"))]
+    : [
+        query(base, where("status", "in", [...PUBLIC_STATUSES]), orderBy("updatedAt", "desc")),
+        query(base, orderBy("updatedAt", "desc")),
+      ];
+
+  for (const q of attempts) {
+    try {
+      const snap = await getDocs(q);
+      const books = snap.docs.map((d) => fromDoc(d.id, d.data()));
+      if (!options?.includeDrafts) {
+        return sortBooks(books.filter(isPublicBook));
+      }
+      return sortBooks(books);
+    } catch {
+      // try next query shape
+    }
   }
+
+  const snap = await getDocs(base);
+  const books = snap.docs.map((d) => fromDoc(d.id, d.data()));
+  return options?.includeDrafts ? sortBooks(books) : sortBooks(books.filter(isPublicBook));
 }
 
 async function findBookIdBySlug(slug: string) {
@@ -89,8 +111,8 @@ export async function listBooks(options?: BookListOptions) {
   if (!db) return seedBooks(options);
 
   try {
-    const books = await fetchFirestoreBooks();
-    const filtered = options?.includeDrafts ? books : books.filter((b) => b.status !== "draft");
+    const books = await fetchFirestoreBooks(options);
+    const filtered = options?.includeDrafts ? books : books.filter(isPublicBook);
 
     if (options?.firestoreOnly) return sortBooks(filtered);
     if (books.length > 0) return sortBooks(filtered);
@@ -120,7 +142,7 @@ export async function getBookBySlug(slug: string, options?: BookListOptions) {
       return book;
     }
 
-    const all = await fetchFirestoreBooks();
+    const all = await fetchFirestoreBooks({ firestoreOnly: true, includeDrafts: true });
     if (all.length > 0 || options?.firestoreOnly) return null;
   } catch {
     // fall through to seed

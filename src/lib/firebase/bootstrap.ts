@@ -15,6 +15,7 @@ export async function bootstrapFirestoreContent() {
       location: post.location,
       coverImage: post.coverImage,
       gallery: post.gallery,
+      media: post.media,
       published: post.published,
       featured: post.featured,
       createdAt: post.createdAt,

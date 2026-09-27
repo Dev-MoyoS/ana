@@ -1,4 +1,9 @@
-import type { JournalPost } from "@/lib/types/content";
+import { AUTHOR_CONTACT_EMAIL } from "@/lib/site/contact";
+import type { JournalMediaItem, JournalPost } from "@/lib/types/content";
+
+function imagesToMedia(urls: readonly string[]): JournalMediaItem[] {
+  return urls.map((url, i) => ({ id: `seed-img-${i}-${url}`, kind: "image" as const, url }));
+}
 
 const dawnviewGallery = [
   "/IMG_20260811_161826.jpg",
@@ -26,10 +31,11 @@ We spoke about confidence, kindness, and the beauty of being different. I signed
 
 This is only the beginning. More schools, more towns, and more stories are ahead — and I will keep journaling every step here, with photos and updates from the road.
 
-If you'd like a school visit, reach out through the website. Let's keep building a world where children feel seen, valued, and proud of who they are.`,
+If you'd like a school visit, email ${AUTHOR_CONTACT_EMAIL} — let's keep building a world where children feel seen, valued, and proud of who they are.`,
     location: "Dawnview High School",
     coverImage: "/IMG-20260818-WA0012.jpg",
     gallery: [...dawnviewGallery],
+    media: imagesToMedia(dawnviewGallery),
     published: true,
     featured: true,
     createdAt: "2026-08-18T12:00:00.000Z",
@@ -48,6 +54,7 @@ I'll post photos, reflections, and progress updates here as we travel. Check bac
     location: "On tour",
     coverImage: "/IMG_20260811_161826.jpg",
     gallery: ["/IMG_20260811_161826.jpg", "/IMG-20260818-WA0029.jpg"],
+    media: imagesToMedia(["/IMG_20260811_161826.jpg", "/IMG-20260818-WA0029.jpg"]),
     published: true,
     featured: false,
     createdAt: "2026-08-11T10:00:00.000Z",
@@ -68,6 +75,7 @@ Thank you for following this journey. More updates on formats, pricing, and new 
     location: "South Africa",
     coverImage: "/1000475710.jpg",
     gallery: ["/1000475710.jpg", "/1000475709.jpg"],
+    media: imagesToMedia(["/1000475710.jpg", "/1000475709.jpg"]),
     published: true,
     featured: false,
     createdAt: "2026-08-07T09:00:00.000Z",

@@ -1,16 +1,18 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState, type ReactNode } from "react";
+import { FormEvent, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { TOUR_PHOTO_PATHS } from "@/lib/content/tourPhotos";
 import { bootstrapFirestoreContent } from "@/lib/firebase/bootstrap";
 import { deleteBook, listBooks, saveBook } from "@/lib/firebase/books";
 import { deleteJournalPost, listJournalPosts, saveJournalPost } from "@/lib/firebase/journal";
 import { useAuthorAuth } from "@/lib/firebase/AuthorAuthContext";
 import type { BookProduct, JournalCategory, JournalPost } from "@/lib/types/content";
+import { getAuthorIdleTimeoutMs } from "@/lib/firebase/authorIdle";
+import { normalizeJournalMedia } from "@/lib/journal/media";
 import { slugify } from "@/lib/utils/slugify";
-import { AdminSetupPanel } from "./AdminSetupPanel";
+import { JournalEntryPreview } from "./JournalEntryPreview";
+import { JournalMediaEditor } from "./JournalMediaEditor";
 
 type Tab = "overview" | "journal" | "books";
 
@@ -31,6 +33,7 @@ const EMPTY_JOURNAL_FORM: Partial<JournalPost> = {
   location: "",
   coverImage: "/theme.jpg",
   gallery: [],
+  media: [],
   published: true,
   featured: false,
 };
@@ -80,10 +83,7 @@ export function AuthorStudio() {
     if (isAuthor) refresh();
   }, [isAuthor]);
 
-  const galleryText = useMemo(
-    () => (journalForm.gallery ?? []).join("\n"),
-    [journalForm.gallery],
-  );
+  const idleMinutes = Math.round(getAuthorIdleTimeoutMs() / 60000);
 
   if (loading || !isAuthor) {
     return <div className="mx-auto max-w-6xl px-6 py-24 text-sm text-[color:var(--muted)]">Checking access…</div>;
@@ -105,6 +105,10 @@ export function AuthorStudio() {
         location: journalForm.location || undefined,
         coverImage: journalForm.coverImage || "/theme.jpg",
         gallery: journalForm.gallery ?? [],
+        media: normalizeJournalMedia({
+          media: journalForm.media ?? [],
+          gallery: journalForm.gallery ?? [],
+        }),
         published: Boolean(journalForm.published),
         featured: Boolean(journalForm.featured),
       });
@@ -138,13 +142,6 @@ export function AuthorStudio() {
     } finally {
       setBusy(false);
     }
-  }
-
-  function addTourPhotosToGallery() {
-    setJournalForm((f) => {
-      const merged = new Set([...(f.gallery ?? []), ...TOUR_PHOTO_PATHS]);
-      return { ...f, gallery: Array.from(merged) };
-    });
   }
 
   async function onSaveBook(e: FormEvent) {
@@ -189,6 +186,9 @@ export function AuthorStudio() {
             <div className="mt-1 font-[var(--font-display)] text-xl text-[color:var(--foreground)] sm:text-2xl">
               Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}
             </div>
+            <p className="mt-2 text-xs text-[rgba(46,29,24,0.55)]">
+              Auto sign-out after {idleMinutes} minutes of inactivity
+            </p>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             <Link href="/inside-the-world" className="btn-luxury-secondary min-h-11 px-4 py-2.5 text-center text-xs">
@@ -229,7 +229,6 @@ export function AuthorStudio() {
 
         {tab === "overview" ? (
           <div className="mt-6 space-y-5 md:mt-8">
-            <AdminSetupPanel />
             <div className="panel p-5 sm:p-7">
               <div className="font-[var(--font-cinematic)] text-xs tracking-[0.34em] text-[color:var(--muted)]">
                 QUICK START
@@ -325,51 +324,32 @@ export function AuthorStudio() {
                   onChange={(e) => setJournalForm((f) => ({ ...f, excerpt: e.target.value }))}
                 />
               </StudioField>
-              <StudioField label="Body">
+              <StudioField label="Story">
                 <textarea
-                  className="studio-input min-h-40"
+                  className="studio-input min-h-44"
                   value={journalForm.body ?? ""}
                   onChange={(e) => setJournalForm((f) => ({ ...f, body: e.target.value }))}
+                  placeholder="Write like you're talking to a friend — short paragraphs work beautifully on mobile."
                 />
               </StudioField>
-              <StudioField label="Cover image path">
+              <JournalMediaEditor
+                entrySlug={journalForm.slug || slugify(journalForm.title || "draft")}
+                media={normalizeJournalMedia({
+                  media: journalForm.media ?? [],
+                  gallery: journalForm.gallery ?? [],
+                })}
+                coverImage={journalForm.coverImage ?? ""}
+                disabled={busy}
+                onMediaChange={(media) => setJournalForm((f) => ({ ...f, media, gallery: media.filter((m) => m.kind === "image").map((m) => m.url) }))}
+                onCoverChange={(coverImage) => setJournalForm((f) => ({ ...f, coverImage }))}
+              />
+              <StudioField label="Cover image (hero on blog & index)">
                 <input
                   className="studio-input"
                   value={journalForm.coverImage ?? ""}
                   onChange={(e) => setJournalForm((f) => ({ ...f, coverImage: e.target.value }))}
-                  placeholder="/IMG-20260818-WA0012.jpg"
+                  placeholder="Set from a photo above, or paste a path / URL"
                 />
-              </StudioField>
-              <StudioField label="Gallery image paths (one per line)">
-                <textarea
-                  className="studio-input min-h-28"
-                  value={galleryText}
-                  onChange={(e) =>
-                    setJournalForm((f) => ({
-                      ...f,
-                      gallery: e.target.value
-                        .split("\n")
-                        .map((s) => s.trim())
-                        .filter(Boolean),
-                    }))
-                  }
-                />
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    className="min-h-11 rounded-full border border-[rgba(46,29,24,0.12)] bg-white/75 px-4 py-2 text-xs tracking-[0.16em] text-[color:var(--muted)]"
-                    onClick={addTourPhotosToGallery}
-                  >
-                    ADD DAWNVIEW TOUR PHOTOS
-                  </button>
-                  <button
-                    type="button"
-                    className="min-h-11 rounded-full border border-[rgba(46,29,24,0.12)] bg-white/75 px-4 py-2 text-xs tracking-[0.16em] text-[color:var(--muted)]"
-                    onClick={() => setJournalForm((f) => ({ ...f, gallery: [] }))}
-                  >
-                    CLEAR GALLERY
-                  </button>
-                </div>
               </StudioField>
               <div className="flex flex-wrap gap-4 text-sm">
                 <label className="flex items-center gap-2">
@@ -394,7 +374,8 @@ export function AuthorStudio() {
               </button>
             </form>
 
-            <div className="panel p-6 sm:p-8">
+            <div className="panel space-y-5 p-6 sm:p-8">
+              <JournalEntryPreview draft={journalForm} />
               <div className="font-[var(--font-cinematic)] text-xs tracking-[0.34em] text-[color:var(--muted)]">
                 LIVE ENTRIES (FIREBASE)
               </div>
@@ -408,13 +389,20 @@ export function AuthorStudio() {
                     <div key={p.id} className="rounded-[16px] border border-[rgba(46,29,24,0.10)] bg-white/70 p-4">
                       <div className="font-[var(--font-display)] text-lg">{p.title}</div>
                       <div className="mt-1 text-xs text-[rgba(46,29,24,0.55)]">
-                        {p.category} • {p.published ? "published" : "draft"}
+                        {p.category} • {p.published ? "published" : "draft"} •{" "}
+                        {normalizeJournalMedia(p).filter((m) => m.kind === "image").length} photos •{" "}
+                        {normalizeJournalMedia(p).filter((m) => m.kind === "video").length} videos
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <button
                           type="button"
                           className="text-xs underline"
-                          onClick={() => setJournalForm(p)}
+                          onClick={() =>
+                            setJournalForm({
+                              ...p,
+                              media: normalizeJournalMedia(p),
+                            })
+                          }
                         >
                           Edit
                         </button>
@@ -691,7 +679,7 @@ function TabButton({
   );
 }
 
-function StudioField({ label, children }: { label: string; children: React.ReactNode }) {
+function StudioField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
       <span className="text-xs tracking-[0.22em] text-[rgba(46,29,24,0.55)]">{label.toUpperCase()}</span>

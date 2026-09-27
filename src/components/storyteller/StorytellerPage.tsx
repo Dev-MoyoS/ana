@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
+import { SiteContactPanel } from "../shared/SiteContactFooter";
 import { WorldShell } from "../shared/WorldShell";
 import { CinematicFrame } from "../shared/CinematicFrame";
 
@@ -140,6 +141,10 @@ export function StorytellerPage() {
             ))}
           </div>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <SiteContactPanel title="Write to Ana" />
       </div>
     </WorldShell>
   );

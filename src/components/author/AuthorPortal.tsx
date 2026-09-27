@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { consumeAuthorIdleSignOutMessage } from "@/lib/firebase/authorIdle";
 import { useAuthorAuth } from "@/lib/firebase/AuthorAuthContext";
 
 export function AuthorPortal() {
@@ -11,6 +12,11 @@ export function AuthorPortal() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [idleNotice, setIdleNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIdleNotice(consumeAuthorIdleSignOutMessage());
+  }, []);
 
   useEffect(() => {
     if (!loading && isAuthor) router.replace("/author/studio");
@@ -42,8 +48,14 @@ export function AuthorPortal() {
           <h1 className="mt-4 font-[var(--font-display)] text-3xl text-[color:var(--foreground)]">Author portal</h1>
           <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
             Sign in to manage journal entries, book formats, retailer links, and tour updates. This area is not listed
-            in the public site navigation.
+            in the public site navigation. Sessions sign out automatically after inactivity.
           </p>
+
+          {idleNotice ? (
+            <div className="mt-4 rounded-[14px] border border-[rgba(46,29,24,0.10)] bg-white/75 px-4 py-3 text-sm text-[color:var(--muted)]">
+              {idleNotice}
+            </div>
+          ) : null}
 
           {!firebaseReady ? (
             <div className="mt-6 rounded-[16px] border border-[rgba(46,29,24,0.10)] bg-white/70 p-4 text-sm text-[color:var(--muted)]">

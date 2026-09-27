@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { listBooks } from "@/lib/firebase/books";
 import type { BookProduct } from "@/lib/types/content";
+import { ContactEmailLink } from "../shared/ContactEmailLink";
+import { SiteContactPanel } from "../shared/SiteContactFooter";
 import { WorldShell } from "../shared/WorldShell";
 import { CinematicFrame } from "../shared/CinematicFrame";
 
@@ -66,7 +68,8 @@ export function LibraryPage() {
 
           <div className="mt-8 rounded-[18px] border border-[rgba(46,29,24,0.10)] bg-white/60 p-5 text-sm text-[color:var(--muted)]">
             Ebook and audiobook checkout links can be managed in the private author studio once payment providers
-            (Stripe, PayFast, Gumroad, etc.) are connected.
+            (Stripe, PayFast, Gumroad, etc.) are connected. Questions about orders or bulk school copies?{" "}
+            <ContactEmailLink subject="Library / book order enquiry" />
           </div>
         </div>
 
@@ -106,6 +109,10 @@ export function LibraryPage() {
             >
               Explore the Book World
             </Link>
+          </div>
+
+          <div className="mt-8">
+            <SiteContactPanel title="Contact" />
           </div>
         </div>
       </div>

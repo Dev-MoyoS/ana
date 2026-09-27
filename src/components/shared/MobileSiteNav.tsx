@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { mailtoAuthor } from "@/lib/site/contact";
 
 const LINKS = [
   { href: "/world/children", label: "Children's Stories" },
@@ -38,11 +39,17 @@ export function MobileSiteNav({ compactLabels = false }: { compactLabels?: boole
             {compactLabels ? link.label.split(" ")[0] : link.label}
           </Link>
         ))}
+        <a
+          href={mailtoAuthor({ subject: "Message for Ana The Author" })}
+          className="transition hover:text-[color:var(--foreground)]"
+        >
+          {compactLabels ? "Contact" : "Contact Ana"}
+        </a>
       </nav>
 
       <button
         type="button"
-        className="mobile-nav-toggle md:hidden"
+        className="mobile-nav-toggle relative z-[70] md:hidden"
         aria-expanded={open}
         aria-controls="mobile-site-menu"
         onClick={() => setOpen((v) => !v)}
@@ -72,6 +79,13 @@ export function MobileSiteNav({ compactLabels = false }: { compactLabels?: boole
               {link.label}
             </Link>
           ))}
+          <a
+            href={mailtoAuthor({ subject: "Message for Ana The Author" })}
+            className="mobile-nav-link"
+            onClick={() => setOpen(false)}
+          >
+            Contact Ana
+          </a>
         </div>
       </div>
     </>

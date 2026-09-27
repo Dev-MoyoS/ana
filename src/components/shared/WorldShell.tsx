@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import { MobileSiteNav } from "./MobileSiteNav";
 import { ParticleField } from "./ParticleField";
+import { SiteContactFooter } from "./SiteContactFooter";
 
 export function WorldShell({
   eyebrow,
@@ -51,7 +52,8 @@ export function WorldShell({
         <p className="mt-4 max-w-2xl text-base leading-7 text-[color:var(--muted)] sm:mt-5 sm:text-lg">{subtitle}</p>
       </section>
 
-      <section className="relative z-10 mx-auto max-w-6xl px-4 pb-20 sm:px-6 sm:pb-24">{children}</section>
+      <section className="relative z-10 mx-auto max-w-6xl px-4 pb-12 sm:px-6 sm:pb-16">{children}</section>
+      <SiteContactFooter showAdminLinks={false} />
     </main>
   );
 }

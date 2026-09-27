@@ -12,7 +12,12 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 import { SEED_JOURNAL_POSTS } from "@/lib/content/seedJournal";
-import type { JournalPost } from "@/lib/types/content";
+import {
+  galleryUrlsFromMedia,
+  normalizeJournalMedia,
+  videoUrlsFromMedia,
+} from "@/lib/journal/media";
+import type { JournalMediaItem, JournalPost } from "@/lib/types/content";
 import { slugify } from "@/lib/utils/slugify";
 import { getFirebaseDb } from "./client";
 
@@ -20,11 +25,36 @@ const COLLECTION = "journal_posts";
 
 export type JournalListOptions = {
   includeDrafts?: boolean;
-  /** Admin studio: never merge demo seed entries */
   firestoreOnly?: boolean;
 };
 
+function parseMediaItems(raw: unknown): JournalMediaItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const row = item as Record<string, unknown>;
+      const url = String(row.url ?? "").trim();
+      if (!url) return null;
+      return {
+        id: String(row.id ?? url),
+        kind: row.kind === "video" ? "video" : "image",
+        url,
+        caption: row.caption ? String(row.caption) : undefined,
+      } satisfies JournalMediaItem;
+    })
+    .filter(Boolean) as JournalMediaItem[];
+}
+
 function fromDoc(id: string, data: DocumentData): JournalPost {
+  const gallery = Array.isArray(data.gallery) ? data.gallery.map(String) : [];
+  const videos = Array.isArray(data.videos) ? data.videos.map(String) : undefined;
+  const media = normalizeJournalMedia({
+    media: parseMediaItems(data.media),
+    gallery,
+    videos,
+  });
+
   return {
     id,
     slug: String(data.slug ?? id),
@@ -34,7 +64,9 @@ function fromDoc(id: string, data: DocumentData): JournalPost {
     body: String(data.body ?? ""),
     location: data.location ? String(data.location) : undefined,
     coverImage: String(data.coverImage ?? "/theme.jpg"),
-    gallery: Array.isArray(data.gallery) ? data.gallery.map(String) : [],
+    gallery: gallery.length ? gallery : galleryUrlsFromMedia(media),
+    videos: videos?.length ? videos : videoUrlsFromMedia(media),
+    media,
     published: Boolean(data.published),
     featured: Boolean(data.featured),
     createdAt: String(data.createdAt ?? new Date().toISOString()),
@@ -54,18 +86,35 @@ function seedPosts(options?: JournalListOptions) {
     : SEED_JOURNAL_POSTS.filter((p) => p.published);
 }
 
-async function fetchFirestorePosts(): Promise<JournalPost[]> {
+async function fetchFirestorePosts(options?: JournalListOptions): Promise<JournalPost[]> {
   const db = getFirebaseDb();
   if (!db) return [];
 
-  try {
-    const ordered = query(collection(db, COLLECTION), orderBy("createdAt", "desc"));
-    const snap = await getDocs(ordered);
-    return snap.docs.map((d) => fromDoc(d.id, d.data()));
-  } catch {
-    const snap = await getDocs(collection(db, COLLECTION));
-    return sortPosts(snap.docs.map((d) => fromDoc(d.id, d.data())));
+  const base = collection(db, COLLECTION);
+
+  const attempts = options?.includeDrafts
+    ? [query(base, orderBy("createdAt", "desc"))]
+    : [
+        query(base, where("published", "==", true), orderBy("createdAt", "desc")),
+        query(base, orderBy("createdAt", "desc")),
+      ];
+
+  for (const q of attempts) {
+    try {
+      const snap = await getDocs(q);
+      const posts = snap.docs.map((d) => fromDoc(d.id, d.data()));
+      if (!options?.includeDrafts) {
+        return sortPosts(posts.filter((p) => p.published));
+      }
+      return sortPosts(posts);
+    } catch {
+      // try next query shape (missing index / rules)
+    }
   }
+
+  const snap = await getDocs(base);
+  const posts = snap.docs.map((d) => fromDoc(d.id, d.data()));
+  return options?.includeDrafts ? sortPosts(posts) : sortPosts(posts.filter((p) => p.published));
 }
 
 async function findJournalIdBySlug(slug: string) {
@@ -81,7 +130,7 @@ export async function listJournalPosts(options?: JournalListOptions) {
   if (!db) return seedPosts(options);
 
   try {
-    const posts = await fetchFirestorePosts();
+    const posts = await fetchFirestorePosts(options);
     const filtered = options?.includeDrafts ? posts : posts.filter((p) => p.published);
 
     if (options?.firestoreOnly) return sortPosts(filtered);
@@ -112,7 +161,7 @@ export async function getJournalPostBySlug(slug: string, options?: JournalListOp
       return post;
     }
 
-    const all = await fetchFirestorePosts();
+    const all = await fetchFirestorePosts({ firestoreOnly: true, includeDrafts: true });
     if (all.length > 0 || options?.firestoreOnly) return null;
   } catch {
     // fall through to seed when Firestore read fails
@@ -134,6 +183,14 @@ export async function saveJournalPost(
   const slug = post.slug || slugify(post.title);
   const existingId = post.id ?? (await findJournalIdBySlug(slug));
 
+  const media = normalizeJournalMedia({
+    media: post.media ?? [],
+    gallery: post.gallery ?? [],
+    videos: post.videos,
+  });
+  const gallery = galleryUrlsFromMedia(media);
+  const videos = videoUrlsFromMedia(media);
+
   const payload = {
     title: post.title,
     slug,
@@ -141,8 +198,10 @@ export async function saveJournalPost(
     excerpt: post.excerpt,
     body: post.body,
     location: post.location ?? null,
-    coverImage: post.coverImage,
-    gallery: post.gallery ?? [],
+    coverImage: post.coverImage || gallery[0] || "/theme.jpg",
+    gallery,
+    videos,
+    media,
     published: Boolean(post.published),
     featured: Boolean(post.featured),
     updatedAt: now,

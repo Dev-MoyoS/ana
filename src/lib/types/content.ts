@@ -5,6 +5,16 @@ export type JournalCategory =
   | "updates"
   | "inspiration";
 
+export type JournalMediaKind = "image" | "video";
+
+/** Ordered images and videos for a journal entry (author-managed). */
+export type JournalMediaItem = {
+  id: string;
+  kind: JournalMediaKind;
+  url: string;
+  caption?: string;
+};
+
 export type JournalPost = {
   id: string;
   slug: string;
@@ -14,7 +24,11 @@ export type JournalPost = {
   body: string;
   location?: string;
   coverImage: string;
+  /** @deprecated Derived from `media` on save; kept for older clients. */
   gallery: string[];
+  /** @deprecated Use `media` with kind video. */
+  videos?: string[];
+  media: JournalMediaItem[];
   published: boolean;
   featured: boolean;
   createdAt: string;

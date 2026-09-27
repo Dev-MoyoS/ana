@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/dev-clean.mjs",
     "dev:3002": "next dev --port 3002",
     "dev:clean": "node -e \"const fs=require('fs'); try{fs.rmSync('.next',{recursive:true,force:true})}catch(e){}\" && next dev --port 3002",
     "dev:any": "node scripts/dev-any.mjs",

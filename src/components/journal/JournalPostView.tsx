@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import type { JournalPost } from "@/lib/types/content";
+import { SiteContactPanel } from "../shared/SiteContactFooter";
 import { WorldShell } from "../shared/WorldShell";
 import { CinematicFrame } from "../shared/CinematicFrame";
+import { JournalMediaGallery } from "./JournalMediaGallery";
 
 export function JournalPostView({ post }: { post: JournalPost }) {
   const paragraphs = post.body.split(/\n\n+/).filter(Boolean);
@@ -44,37 +44,18 @@ export function JournalPostView({ post }: { post: JournalPost }) {
             priority
           />
 
-          {post.gallery.length > 1 ? (
-            <div className="panel p-5 sm:p-6">
-              <div className="font-[var(--font-cinematic)] text-xs tracking-[0.38em] text-[color:var(--muted)]">
-                From the visit
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-2 sm:gap-3">
-                {post.gallery.map((src, idx) => (
-                  <motion.div
-                    key={src}
-                    initial={{ opacity: 0, y: 8 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.04 }}
-                    className="relative aspect-[4/5] overflow-hidden rounded-[16px] border border-[rgba(46,29,24,0.10)]"
-                  >
-                    <Image src={src} alt="" fill sizes="(max-width:768px) 45vw, 220px" className="object-cover" />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          ) : null}
+          <JournalMediaGallery post={post} />
         </div>
       </div>
 
-      <div className="mt-10">
+      <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_0.9fr] lg:items-start">
         <Link
           href="/inside-the-world"
           className="text-sm text-[color:var(--muted)] transition hover:text-[color:var(--foreground)]"
         >
           ← Back to the journal
         </Link>
+        <SiteContactPanel title="School visits & messages" />
       </div>
     </WorldShell>
   );
