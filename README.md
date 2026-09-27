@@ -34,7 +34,7 @@ firebase deploy --only firestore:rules
 6. Sign in at **`/author/portal`** (private — not linked in public navigation).
 7. Manage journal entries and book formats in **`/author/studio`**.
 
-### Production (Netlify — mudaubooks.co.za)
+### Production (Netlify)
 
 This repo includes `netlify.toml` with the official **Next.js Netlify plugin** (`npm run build`).
 
@@ -45,6 +45,8 @@ If `/author/portal` shows “Firebase is not configured”, the live site was bu
 3. Set scopes to **Production** (and **Deploy previews** if you use branch builds).
 4. **Deploys → Trigger deploy → Deploy site** (or push a commit). Updating env vars alone is not enough for `NEXT_PUBLIC_*` — you need a **new build**.
 5. Run `firebase deploy --only firestore:rules,storage` so author accounts can write journal media and posts (enable Storage in Firebase Console first if needed).
+
+**Netlify build settings:** leave **Publish directory** empty (or remove a custom `.next` publish path in the UI). The Next.js plugin in `netlify.toml` handles output. Secret scanning for `NEXT_PUBLIC_*` keys is configured in `netlify.toml` — those values are public in the browser by design.
 
 Public pages:
 

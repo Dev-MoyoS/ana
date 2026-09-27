@@ -67,7 +67,7 @@ export function AuthorPortal() {
             <div className="mt-6 space-y-3 rounded-[16px] border border-[rgba(46,29,24,0.10)] bg-white/70 p-4 text-sm text-[color:var(--muted)]">
               <p>
                 Firebase is not configured on <strong className="font-medium text-[color:var(--foreground)]">this deployment</strong>.
-                On Netlify (e.g. mudaubooks.co.za), open <strong className="font-medium text-[color:var(--foreground)]">Site configuration → Environment variables</strong>,
+                On Netlify, open <strong className="font-medium text-[color:var(--foreground)]">Site configuration → Environment variables</strong>,
                 add everything from <code className="text-xs">.env.example</code> (copy values from <code className="text-xs">.env.local</code>),
                 then <strong className="font-medium text-[color:var(--foreground)]">trigger a new deploy</strong> —{" "}
                 <code className="text-xs">NEXT_PUBLIC_*</code> values are baked in at build time.
