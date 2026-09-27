@@ -34,6 +34,16 @@ firebase deploy --only firestore:rules
 6. Sign in at **`/author/portal`** (private — not linked in public navigation).
 7. Manage journal entries and book formats in **`/author/studio`**.
 
+### Production (Vercel — mudaubooks.co.za)
+
+If `/author/portal` shows “Firebase is not configured”, the live site was built **without** Firebase env vars.
+
+1. Vercel → your project → **Settings → Environment Variables**.
+2. Copy every `NEXT_PUBLIC_FIREBASE_*`, `NEXT_PUBLIC_AUTHOR_*`, and `NEXT_PUBLIC_CONTACT_EMAIL` value from your local `.env.local` (see `.env.example` for names).
+3. Apply to **Production** (and Preview if you use it).
+4. **Redeploy** the latest deployment (Deployments → … → Redeploy). Changing env vars alone is not enough for `NEXT_PUBLIC_*` — you need a new build.
+5. Run `firebase deploy --only firestore:rules,storage` so Ana’s account can write journal media and posts.
+
 Public pages:
 
 - Journal: `/inside-the-world` and `/inside-the-world/[slug]`

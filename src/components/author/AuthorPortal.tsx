@@ -4,6 +4,10 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { consumeAuthorIdleSignOutMessage } from "@/lib/firebase/authorIdle";
 import { useAuthorAuth } from "@/lib/firebase/AuthorAuthContext";
+import {
+  getMissingFirebaseEnvKeys,
+  getRecommendedFirebaseEnvKeysMissing,
+} from "@/lib/firebase/config";
 
 export function AuthorPortal() {
   const { signIn, isAuthor, loading, firebaseReady } = useAuthorAuth();
@@ -13,6 +17,8 @@ export function AuthorPortal() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [idleNotice, setIdleNotice] = useState<string | null>(null);
+  const missingRequired = getMissingFirebaseEnvKeys();
+  const missingRecommended = getRecommendedFirebaseEnvKeysMissing();
 
   useEffect(() => {
     setIdleNotice(consumeAuthorIdleSignOutMessage());
@@ -58,9 +64,41 @@ export function AuthorPortal() {
           ) : null}
 
           {!firebaseReady ? (
-            <div className="mt-6 rounded-[16px] border border-[rgba(46,29,24,0.10)] bg-white/70 p-4 text-sm text-[color:var(--muted)]">
-              Firebase is not configured yet. Add your Firebase environment variables, deploy Firestore rules, and create
-              the author account in Firebase Authentication.
+            <div className="mt-6 space-y-3 rounded-[16px] border border-[rgba(46,29,24,0.10)] bg-white/70 p-4 text-sm text-[color:var(--muted)]">
+              <p>
+                Firebase is not configured on <strong className="font-medium text-[color:var(--foreground)]">this deployment</strong>.
+                On Vercel (e.g. mudaubooks.co.za), add the variables from <code className="text-xs">.env.example</code>,
+                then <strong className="font-medium text-[color:var(--foreground)]"> redeploy</strong> —{" "}
+                <code className="text-xs">NEXT_PUBLIC_*</code> values are baked in at build time.
+              </p>
+              {missingRequired.length ? (
+                <div>
+                  <div className="text-xs tracking-[0.2em] text-[rgba(46,29,24,0.55)]">MISSING (REQUIRED)</div>
+                  <ul className="mt-2 list-inside list-disc text-xs leading-6">
+                    {missingRequired.map((key) => (
+                      <li key={key}>
+                        <code>{key}</code>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {missingRecommended.length ? (
+                <div>
+                  <div className="text-xs tracking-[0.2em] text-[rgba(46,29,24,0.55)]">RECOMMENDED NEXT</div>
+                  <ul className="mt-2 list-inside list-disc text-xs leading-6">
+                    {missingRecommended.map((key) => (
+                      <li key={key}>
+                        <code>{key}</code>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              <p className="text-xs leading-6">
+                Then: deploy Firestore + Storage rules (<code className="text-[11px]">firebase deploy --only firestore:rules,storage</code>
+                ), create the author user in Firebase Authentication, and sign in here.
+              </p>
             </div>
           ) : (
             <form className="mt-6 space-y-4" onSubmit={onSubmit}>
