@@ -3,6 +3,7 @@
 import { ReactNode, useEffect } from "react";
 import Lenis from "lenis";
 import { AuthorAuthProvider } from "@/lib/firebase/AuthorAuthContext";
+import { FirebaseBootstrapProvider } from "@/lib/firebase/FirebaseBootstrapContext";
 import { getFirebaseAnalytics } from "@/lib/firebase/analytics";
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -42,6 +43,10 @@ export function Providers({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  return <AuthorAuthProvider>{children}</AuthorAuthProvider>;
+  return (
+    <FirebaseBootstrapProvider>
+      <AuthorAuthProvider>{children}</AuthorAuthProvider>
+    </FirebaseBootstrapProvider>
+  );
 }
 

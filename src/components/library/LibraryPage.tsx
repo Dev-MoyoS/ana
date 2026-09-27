@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useFirebaseBootstrap } from "@/lib/firebase/FirebaseBootstrapContext";
 import { listBooks } from "@/lib/firebase/books";
 import type { BookProduct } from "@/lib/types/content";
 import { ContactEmailLink } from "../shared/ContactEmailLink";
@@ -13,12 +14,14 @@ import { CinematicFrame } from "../shared/CinematicFrame";
 export function LibraryPage() {
   const shelfImg = "/theme.jpg";
   const [books, setBooks] = useState<BookProduct[]>([]);
+  const { ready: firebaseReady, loading: firebaseBootLoading } = useFirebaseBootstrap();
 
   useEffect(() => {
+    if (firebaseBootLoading || !firebaseReady) return;
     listBooks()
       .then(setBooks)
       .catch(() => setBooks([]));
-  }, []);
+  }, [firebaseBootLoading, firebaseReady]);
 
   return (
     <WorldShell

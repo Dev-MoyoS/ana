@@ -3,6 +3,7 @@
 import { AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useFirebaseBootstrap } from "@/lib/firebase/FirebaseBootstrapContext";
 import { listJournalPosts } from "@/lib/firebase/journal";
 import type { JournalCategory, JournalPost } from "@/lib/types/content";
 import { SiteContactPanel } from "../shared/SiteContactFooter";
@@ -23,8 +24,10 @@ export function JournalIndex() {
   const [posts, setPosts] = useState<JournalPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
+  const { ready: firebaseReady, loading: firebaseBootLoading } = useFirebaseBootstrap();
 
   useEffect(() => {
+    if (firebaseBootLoading || !firebaseReady) return;
     let mounted = true;
     listJournalPosts()
       .then((data) => {
@@ -39,7 +42,7 @@ export function JournalIndex() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [firebaseBootLoading, firebaseReady]);
 
   const categories = useMemo(() => {
     const set = new Set(posts.map((p) => p.category));

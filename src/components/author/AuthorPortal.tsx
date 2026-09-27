@@ -4,22 +4,21 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { consumeAuthorIdleSignOutMessage } from "@/lib/firebase/authorIdle";
 import { useAuthorAuth } from "@/lib/firebase/AuthorAuthContext";
-import {
-  getMissingFirebaseEnvKeys,
-  getRecommendedFirebaseEnvKeysMissing,
-} from "@/lib/firebase/config";
+import { useFirebaseBootstrap } from "@/lib/firebase/FirebaseBootstrapContext";
 
 export function AuthorPortal() {
   const { signIn, isAuthor, loading, firebaseReady } = useAuthorAuth();
+  const {
+    loading: firebaseBootLoading,
+    missingRequired,
+    missingRecommended,
+  } = useFirebaseBootstrap();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [idleNotice, setIdleNotice] = useState<string | null>(null);
-  const missingRequired = getMissingFirebaseEnvKeys();
-  const missingRecommended = getRecommendedFirebaseEnvKeysMissing();
-
   useEffect(() => {
     setIdleNotice(consumeAuthorIdleSignOutMessage());
   }, []);
@@ -63,14 +62,16 @@ export function AuthorPortal() {
             </div>
           ) : null}
 
-          {!firebaseReady ? (
+          {firebaseBootLoading ? (
+            <div className="mt-6 text-sm text-[color:var(--muted)]">Loading author services…</div>
+          ) : !firebaseReady ? (
             <div className="mt-6 space-y-3 rounded-[16px] border border-[rgba(46,29,24,0.10)] bg-white/70 p-4 text-sm text-[color:var(--muted)]">
               <p>
                 Firebase is not configured on <strong className="font-medium text-[color:var(--foreground)]">this deployment</strong>.
                 On Netlify, open <strong className="font-medium text-[color:var(--foreground)]">Site configuration → Environment variables</strong>,
-                add everything from <code className="text-xs">.env.example</code> (copy values from <code className="text-xs">.env.local</code>),
-                then <strong className="font-medium text-[color:var(--foreground)]">trigger a new deploy</strong> —{" "}
-                <code className="text-xs">NEXT_PUBLIC_*</code> values are baked in at build time.
+                add the Firebase keys from <code className="text-xs">.env.example</code> (same values as <code className="text-xs">.env.local</code>),
+                scoped to <strong className="font-medium text-[color:var(--foreground)]">Production</strong>, then redeploy.
+                The list below is read from the server so it reflects what Netlify actually sees.
               </p>
               {missingRequired.length ? (
                 <div>

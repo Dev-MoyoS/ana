@@ -17,7 +17,8 @@ import {
 } from "react";
 import { AuthorInactivityMonitor } from "@/components/author/AuthorInactivityMonitor";
 import { getFirebaseAuth } from "./client";
-import { isAuthorAccount, isFirebaseConfigured } from "./config";
+import { isAuthorAccount } from "./config";
+import { useFirebaseBootstrap } from "./FirebaseBootstrapContext";
 
 type AuthorAuthContextValue = {
   user: User | null;
@@ -31,11 +32,13 @@ type AuthorAuthContextValue = {
 const AuthorAuthContext = createContext<AuthorAuthContextValue | null>(null);
 
 export function AuthorAuthProvider({ children }: { children: ReactNode }) {
+  const { ready: firebaseReady, loading: firebaseBootLoading } = useFirebaseBootstrap();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const firebaseReady = isFirebaseConfigured();
 
   useEffect(() => {
+    if (firebaseBootLoading) return;
+
     const auth = getFirebaseAuth();
     if (!auth) {
       setLoading(false);
@@ -67,7 +70,7 @@ export function AuthorAuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => unsub();
-  }, []);
+  }, [firebaseBootLoading, firebaseReady]);
 
   const signIn = useCallback(async (email: string, password: string) => {
     const auth = getFirebaseAuth();
